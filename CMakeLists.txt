@@ -15,13 +15,19 @@ qt_add_executable(${APP_NAME}
     main.cpp
     logo.rc
 )
-
+set(SINGLETON_QML_FILES
+        Dp.qml
+)
+set_source_files_properties(${SINGLETON_QML_FILES} PROPERTIES
+        QT_QML_SINGLETON_TYPE TRUE
+)
 qt_add_qml_module(${APP_NAME}
     URI Clock
     VERSION 1.0
     QML_FILES
         Main.qml
         MMenu.qml
+        ${SINGLETON_QML_FILES}
     RESOURCES resources.qrc
 )
 
