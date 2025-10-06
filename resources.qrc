@@ -1,0 +1,6 @@
+<RCC>
+    <qresource prefix="/">
+        <file>resources/clock-circle.png</file>
+        <file>qtquickcontrols2.conf</file>
+    </qresource>
+</RCC>
