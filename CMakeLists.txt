@@ -28,6 +28,7 @@ qt_add_qml_module(${APP_NAME}
         Main.qml
         MMenu.qml
         ${SINGLETON_QML_FILES}
+        calendar.mjs
     RESOURCES resources.qrc
 )
 

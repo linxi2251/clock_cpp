@@ -2,6 +2,7 @@ import QtQuick
 import QtQuick.Window
 import QtQuick.Controls
 import Qt.labs.platform as Platform
+import "calendar.mjs" as Lunar
 import Clock
 
 ApplicationWindow {
@@ -18,11 +19,6 @@ ApplicationWindow {
 
     width: dp(500)
     height: width
-
-    Image {
-        source: "qrc:/resources/clock-circle.png"
-        anchors.fill: parent
-    }
 
     // 系统托盘图标
     Platform.SystemTrayIcon {
@@ -107,7 +103,8 @@ ApplicationWindow {
         radius: width / 2
         color: "white"
         border.color: "#333"
-        border.width: dp(4)
+        border.width: dp(10)
+        antialiasing: true
 
         property real baseHourMarkHeight: 20
         property real baseHourMarkWidth: 8
@@ -214,6 +211,7 @@ ApplicationWindow {
             color: "#d32f2f"
             anchors.centerIn: parent
             z: 10
+            antialiasing: true
         }
 
         // 时针
@@ -260,8 +258,35 @@ ApplicationWindow {
             rotation: 0
             antialiasing: true
         }
-
+        // /** 公历年月日转农历数据 返回json */
+        // calendar.solar2lunar(1987,11,01);
+        // /** 农历年月日转公历年月日 */
+        // calendar.lunar2solar(1987,9,10);
+        // /**调用以上方法后返回类似如下object（json）具体以上就不需要解释了吧！*/
+        // /** c开头的是公历各属性值 l开头的自然就是农历咯 gz开头的就是天干地支纪年的数据啦~ */
+        // {
+        //     Animal: "兔",
+        //     IDayCn: "初十",
+        //     IMonthCn: "九月",
+        //     Term: null,
+        //     astro: "天蝎座",
+        //     cDay: 1,
+        //     cMonth: 11,
+        //     cYear: 1987,
+        //     gzDay: "甲寅",
+        //     gzMonth: "庚戌",
+        //     gzYear: "丁卯",
+        //     isLeap: false,
+        //     isTerm: false,
+        //     isToday: false,
+        //     lDay: 10,
+        //     lMonth: 9,
+        //     lYear: 1987,
+        //     nWeek: 7,
+        //     ncWeek: "星期日"
+        // }
         // 定时器更新时间
+        property int currentDay: 0
         Timer {
             interval: 1000
             running: true
@@ -281,11 +306,21 @@ ApplicationWindow {
                 var year = date.getFullYear()
                 var month = date.getMonth() + 1
                 var day = date.getDate()
-                var weekDays = ["星期日","星期一","星期二","星期三","星期四","星期五","星期六"]
-                var weekDay = weekDays[date.getDay()]
-
-                dateText.text = year + "年" + month + "月" + day + "日"
-                weekText.text = weekDay
+                if (clock.currentDay != day) {
+                    let res = Lunar.calendar.solar2lunar(year,month,day);
+                    var weekDay = res?.ncWeek
+                    dateText.text = year + "年" + month + "月" + day + "日"
+                    console.log("update", dateText.text)
+                    
+                    var weekInfo = `${weekDay}  ${res.IMonthCn}${res.IDayCn}`
+                    if (res.lunarFestival) {
+                        weekInfo += `「${res.lunarFestival}」`
+                    } else if (res.Term) {
+                        weekInfo += `「${res.Term}」`
+                    }
+                    weekText.text = weekInfo
+                    clock.currentDay = day
+                }
             }
         }
     }
