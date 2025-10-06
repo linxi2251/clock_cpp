@@ -184,7 +184,7 @@ ApplicationWindow {
         // 日期和星期显示
         Column {
             anchors.centerIn: parent
-            anchors.verticalCenterOffset: dp(hourHand.rotation > 90 && hourHand.rotation < 270? -40 : 40)
+            anchors.verticalCenterOffset: dp(hourHand.rotation > 90 && hourHand.rotation < 270 ? -40 : 40)
             spacing: dp(2)
             z: 5
 
@@ -208,8 +208,8 @@ ApplicationWindow {
 
         // 中心圆点
         Rectangle {
-            width: dp(15)
-            height: dp(15)
+            width: hourHand.width * 1.5
+            height: width
             radius: width / 2
             color: "#d32f2f"
             anchors.centerIn: parent
@@ -222,12 +222,13 @@ ApplicationWindow {
             width: minuteHand.width * 2
             height: minuteHand.height * 0.7
             color: "#333"
-            radius: dp(3)
+            radius: width/2
             anchors.horizontalCenter: parent.horizontalCenter
             anchors.verticalCenter: parent.verticalCenter
-            anchors.verticalCenterOffset: -height / 2 + dp(3)
+            anchors.verticalCenterOffset: -height / 2
             transformOrigin: Item.Bottom
             rotation: 0
+            antialiasing: true
         }
 
         // 分针
@@ -236,26 +237,28 @@ ApplicationWindow {
             width: secondHand.width * 1.5
             height: secondHand.height * 0.8
             color: "#555"
-            radius: dp(2)
+            radius: width/2
             anchors.horizontalCenter: parent.horizontalCenter
             anchors.verticalCenter: parent.verticalCenter
-            anchors.verticalCenterOffset: -height / 2 + dp(2)
+            anchors.verticalCenterOffset: -height / 2
             transformOrigin: Item.Bottom
             rotation: 0
+            antialiasing: true
         }
 
         // 秒针
         Rectangle {
             id: secondHand
             width: dp(clock.baseHourMarkWidth / 2)
-            height: clock.height / 2 * 0.9
+            height: clock.height/2 * 0.9
             color: "#d32f2f"
-            radius: dp(1)
+            radius: width/2
             anchors.horizontalCenter: parent.horizontalCenter
             anchors.verticalCenter: parent.verticalCenter
-            anchors.verticalCenterOffset: -height / 2 + dp(1)
+            anchors.verticalCenterOffset: -height / 2
             transformOrigin: Item.Bottom
             rotation: 0
+            antialiasing: true
         }
 
         // 定时器更新时间
