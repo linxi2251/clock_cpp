@@ -16,8 +16,8 @@ ApplicationWindow {
     Component.onCompleted: Dp.bindToWindow(window)
     function dp (x) { return Dp.dp(x) }
 
-    width: dp(410)
-    height: dp(410)
+    width: dp(500)
+    height: width
 
     Image {
         source: "qrc:/resources/clock-circle.png"
@@ -109,6 +109,10 @@ ApplicationWindow {
         border.color: "#333"
         border.width: dp(4)
 
+        property real baseHourMarkHeight: 20
+        property real baseHourMarkWidth: 8
+        property real baseHourMarkTopMargin: 10
+
         // 使窗口可拖动
         MouseArea {
             anchors.fill: parent
@@ -145,12 +149,12 @@ ApplicationWindow {
 
                 Rectangle {
                     property bool isHourMark: index % 5 === 0
-                    width: dp(isHourMark ? 6 : 2)
-                    height: dp(isHourMark ? 20 : 10)
+                    width: dp(isHourMark ? clock.baseHourMarkWidth : clock.baseHourMarkWidth / 4)
+                    height: dp(isHourMark ? clock.baseHourMarkHeight : clock.baseHourMarkHeight / 2)
                     color: isHourMark ? "#333" : "#999"
                     anchors.horizontalCenter: parent.horizontalCenter
                     anchors.top: parent.top
-                    anchors.topMargin: dp(isHourMark ? 10 : 15)
+                    anchors.topMargin: dp(isHourMark ? clock.baseHourMarkTopMargin : clock.baseHourMarkTopMargin + 5)
                     antialiasing: true
                 }
             }
@@ -180,14 +184,14 @@ ApplicationWindow {
         // 日期和星期显示
         Column {
             anchors.centerIn: parent
-            anchors.verticalCenterOffset: dp(40)
+            anchors.verticalCenterOffset: dp(hourHand.rotation > 90 && hourHand.rotation < 270? -40 : 40)
             spacing: dp(2)
             z: 5
 
             Text {
                 id: dateText
                 text: ""
-                font.pixelSize: dp(16)
+                font.pixelSize: clock.height/20
                 font.bold: true
                 color: "#333"
                 anchors.horizontalCenter: parent.horizontalCenter
@@ -196,7 +200,7 @@ ApplicationWindow {
             Text {
                 id: weekText
                 text: ""
-                font.pixelSize: dp(14)
+                font.pixelSize: dateText.font.pixelSize * 0.8
                 color: "#666"
                 anchors.horizontalCenter: parent.horizontalCenter
             }
@@ -243,8 +247,8 @@ ApplicationWindow {
         // 秒针
         Rectangle {
             id: secondHand
-            width: dp(3)
-            height: dp(150)
+            width: dp(clock.baseHourMarkWidth / 2)
+            height: clock.height / 2 * 0.9
             color: "#d32f2f"
             radius: dp(1)
             anchors.horizontalCenter: parent.horizontalCenter
