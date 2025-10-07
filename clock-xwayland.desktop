@@ -1,0 +1,16 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=模拟时钟
+Name[en]=Analog Clock
+Name[zh_CN]=模拟时钟
+Comment=带窗口置顶支持的模拟时钟应用
+Comment[en]=Analog clock with stay-on-top support
+Comment[zh_CN]=带窗口置顶支持的模拟时钟应用
+Exec=clock-xwayland
+Icon=clock
+Terminal=false
+Categories=Utility;Qt;
+Keywords=clock;time;desktop;widget;
+StartupNotify=true
+StartupWMClass=clock

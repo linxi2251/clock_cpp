@@ -4,17 +4,22 @@ import QtQuick.Controls
 import Qt.labs.platform as Platform
 import "calendar.mjs" as Lunar
 import Clock
+import WindowManagerModule
 
 ApplicationWindow {
     id: window
     visible: true
     title: qsTr("模拟时钟")
     color: "transparent"
-    property bool stayOnTop: false
-    flags: stayOnTop ? Qt.FramelessWindowHint | Qt.WindowStaysOnTopHint : Qt.FramelessWindowHint
+    property bool stayOnTop: WindowManager.stayOnTop
+    flags: Qt.FramelessWindowHint
 
     // 绑定屏幕（重要）
-    Component.onCompleted: Dp.bindToWindow(window)
+    Component.onCompleted: {
+        Dp.bindToWindow(window)
+        // 将窗口传递给 WindowManager
+        WindowManager.setWindow(window)
+    }
     function dp (x) { return Dp.dp(x) }
 
     width: dp(500)
@@ -57,7 +62,7 @@ ApplicationWindow {
 
             Platform.MenuItem {
                 text: window.stayOnTop ? qsTr("📌置顶") : qsTr("置顶")
-                onTriggered: window.stayOnTop = !window.stayOnTop
+                onTriggered: WindowManager.stayOnTop = !WindowManager.stayOnTop
             }
 
             Platform.MenuSeparator {}
@@ -85,7 +90,7 @@ ApplicationWindow {
 
         Action {
             text: window.stayOnTop ? qsTr("📌置顶") : qsTr("置顶")
-            onTriggered: window.stayOnTop = !window.stayOnTop
+            onTriggered: WindowManager.stayOnTop = !WindowManager.stayOnTop
         }
 
         MenuSeparator {}
