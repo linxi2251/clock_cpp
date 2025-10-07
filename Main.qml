@@ -117,21 +117,21 @@ ApplicationWindow {
             acceptedButtons: Qt.LeftButton | Qt.RightButton
 
             onPressed: (mouse) => {
-                if (mouse.button === Qt.RightButton) {
-                    contextMenu.popup(mouse.scenePosition)
-                    mouse.accepted = true
-                    return
-                }
-                clickPos = Qt.point(mouse.x, mouse.y)
-            }
+                           if (mouse.button === Qt.RightButton) {
+                               contextMenu.popup(mouse.scenePosition)
+                               mouse.accepted = true
+                               return
+                           }
+                           clickPos = Qt.point(mouse.x, mouse.y)
+                       }
 
             onPositionChanged: (mouse) => {
-                if (!(mouse.buttons & Qt.LeftButton))
-                    return
-                var delta = Qt.point(mouse.x - clickPos.x, mouse.y - clickPos.y)
-                window.x += delta.x
-                window.y += delta.y
-            }
+                                   if (!(mouse.buttons & Qt.LeftButton))
+                                   return
+                                   var delta = Qt.point(mouse.x - clickPos.x, mouse.y - clickPos.y)
+                                   window.x += delta.x
+                                   window.y += delta.y
+                               }
 
             onDoubleClicked: Qt.quit()
         }
@@ -286,42 +286,44 @@ ApplicationWindow {
         //     ncWeek: "星期日"
         // }
         // 定时器更新时间
-        property int currentDay: 0
         Timer {
-            interval: 1000
+            id: timer
+            interval: 16
             running: true
             repeat: true
             triggeredOnStart: true
+            property int _currentDay: -1
 
             onTriggered: {
                 var date = new Date()
                 var hours = date.getHours()
                 var minutes = date.getMinutes()
                 var seconds = date.getSeconds()
-
                 secondHand.rotation = seconds * 6
                 minuteHand.rotation = minutes * 6 + seconds * 0.1
                 hourHand.rotation = (hours % 12) * 30 + minutes * 0.5
-
                 var year = date.getFullYear()
                 var month = date.getMonth() + 1
                 var day = date.getDate()
-                if (clock.currentDay != day) {
-                    let res = Lunar.calendar.solar2lunar(year,month,day);
-                    var weekDay = res?.ncWeek
-                    dateText.text = year + "年" + month + "月" + day + "日"
-                    console.log("update", dateText.text)
-                    
-                    var weekInfo = `${weekDay}  ${res.IMonthCn}${res.IDayCn}`
-                    if (res.lunarFestival) {
-                        weekInfo += `「${res.lunarFestival}」`
-                    } else if (res.Term) {
-                        weekInfo += `「${res.Term}」`
-                    }
-                    weekText.text = weekInfo
-                    clock.currentDay = day
+                if (_currentDay != day) {
+                    clock.updateLunar(date)
+                    _currentDay = day
                 }
             }
+        }
+
+        function updateLunar(date) {
+            var y = date.getFullYear();
+            var m = date.getMonth() + 1;
+            var d = date.getDate();
+            var res = Lunar.calendar.solar2lunar(y, m, d);
+
+            dateText.text = y + "年" + m + "月" + d + "日";
+            console.log(dateText.text)
+            var weekInfo = res.ncWeek + "  " + res.IMonthCn + res.IDayCn;
+            if (res.lunarFestival)      weekInfo += "「" + res.lunarFestival + "」";
+            else if (res.Term)          weekInfo += "「" + res.Term + "」";
+            weekText.text = weekInfo;
         }
     }
 }
