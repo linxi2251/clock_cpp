@@ -84,3 +84,4 @@ install
 .idea
 .cache
 .vscode
+.qmlls.ini

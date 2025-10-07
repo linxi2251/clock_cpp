@@ -3,8 +3,10 @@
 #include <QLocalServer>
 #include <QLocalSocket>
 #include <QQmlApplicationEngine>
+#include <QQmlContext>
 #include <QMessageBox>
 #include <QUrl>
+#include "windowmanager.h"
 
 // 单实例应用管理器
 class SingleApplication {
@@ -80,7 +82,14 @@ int main(int argc, char *argv[])
         return 0;
     }
 
+    // 创建 WindowManager 实例
+    WindowManager windowManager;
+    
     QQmlApplicationEngine engine;
+    
+    // 将 WindowManager 注册到 QML
+    qmlRegisterSingletonInstance("WindowManagerModule", 1, 0, "WindowManager", &windowManager);
+    
     QObject::connect(
         &engine,
         &QQmlApplicationEngine::objectCreationFailed,
