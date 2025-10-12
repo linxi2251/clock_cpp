@@ -8,22 +8,6 @@ Menu {
         id: menuItem
         implicitWidth: 150
         implicitHeight: 30
-        arrow: Canvas {
-            id: canvas
-            x: parent.width - width
-            implicitWidth: 34
-            implicitHeight: 30
-            visible: menuItem.subMenu
-            onPaint: {
-                var ctx = getContext("2d");
-                ctx.fillStyle = palette.highlight;
-                ctx.moveTo(9, 9);
-                ctx.lineTo(width - 9, height / 2);
-                ctx.lineTo(9, height - 9);
-                ctx.closePath();
-                ctx.fill();
-            }
-        }
 
         indicator: Item {
             implicitWidth: 20

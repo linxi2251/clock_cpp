@@ -11,8 +11,13 @@ ApplicationWindow {
     visible: true
     title: qsTr("模拟时钟")
     color: "transparent"
+
     property bool stayOnTop: WindowManager.stayOnTop
+    property int currentSizeIndex: 1
     flags: Qt.FramelessWindowHint
+
+    width: dp(sizeModel.get(currentSizeIndex).value)
+    height: width
 
     // 绑定屏幕（重要）
     Component.onCompleted: {
@@ -22,8 +27,12 @@ ApplicationWindow {
     }
     function dp (x) { return Dp.dp(x) }
 
-    width: dp(500)
-    height: width
+    ListModel {
+        id: sizeModel
+        ListElement {displayName: "中杯"; value: 350}
+        ListElement {displayName: "大杯"; value: 500}
+        ListElement {displayName: "超大杯"; value: 700}
+    }
 
     // 系统托盘图标
     Platform.SystemTrayIcon {
@@ -95,8 +104,27 @@ ApplicationWindow {
 
         MenuSeparator {}
 
+        Menu {
+            title: qsTr("尺寸")
+
+            Repeater {
+                model: sizeModel
+                MenuItem {
+                    required property string displayName
+                    required property real value
+                    required property int index
+                    text: `${displayName}\t${value}dp`
+                    checkable: true
+                    checked: window.currentSizeIndex === index
+                    onTriggered: window.currentSizeIndex = index
+                }
+            }
+        }
+
+        MenuSeparator {}
+
         Action {
-            text: qsTr("退出")
+            text: qsTr("退出(时钟双击)")
             onTriggered: Qt.quit()
         }
     }
@@ -111,9 +139,9 @@ ApplicationWindow {
         border.width: dp(10)
         antialiasing: true
 
-        property real baseHourMarkHeight: 20
-        property real baseHourMarkWidth: 8
-        property real baseHourMarkTopMargin: 10
+        property real baseHourMarkHeight: clock.height/20
+        property real baseHourMarkWidth: clock.height/60
+        property real baseHourMarkTopMargin: clock.height/40
 
         // 使窗口可拖动
         MouseArea {
@@ -151,12 +179,12 @@ ApplicationWindow {
 
                 Rectangle {
                     property bool isHourMark: index % 5 === 0
-                    width: dp(isHourMark ? clock.baseHourMarkWidth : clock.baseHourMarkWidth / 4)
-                    height: dp(isHourMark ? clock.baseHourMarkHeight : clock.baseHourMarkHeight / 2)
+                    width: isHourMark ? clock.baseHourMarkWidth : clock.baseHourMarkWidth / 4
+                    height: isHourMark ? clock.baseHourMarkHeight : clock.baseHourMarkHeight / 2
                     color: isHourMark ? "#333" : "#999"
                     anchors.horizontalCenter: parent.horizontalCenter
                     anchors.top: parent.top
-                    anchors.topMargin: dp(isHourMark ? clock.baseHourMarkTopMargin : clock.baseHourMarkTopMargin + 5)
+                    anchors.topMargin: isHourMark ? clock.baseHourMarkTopMargin : clock.baseHourMarkTopMargin + dp(5)
                     antialiasing: true
                 }
             }
@@ -172,12 +200,12 @@ ApplicationWindow {
 
                 Text {
                     text: index + 1
-                    font.pixelSize: dp(24)
+                    font.pixelSize: clock.height/20
                     font.bold: true
                     color: "#333"
                     anchors.horizontalCenter: parent.horizontalCenter
                     anchors.top: parent.top
-                    anchors.topMargin: dp(35)
+                    anchors.topMargin: clock.baseHourMarkTopMargin + clock.baseHourMarkHeight + dp(5)
                     rotation: -(index + 1) * 30
                 }
             }
