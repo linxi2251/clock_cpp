@@ -17,6 +17,7 @@ public:
     void setStayOnTop(bool stayOnTop);
 
     Q_INVOKABLE void setWindow(QQuickWindow *window);
+    Q_INVOKABLE void activateWindow();
 
 signals:
     void stayOnTopChanged();

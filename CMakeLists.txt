@@ -21,6 +21,8 @@ qt_add_executable(${APP_NAME}
     main.cpp
     windowmanager.h
     windowmanager.cpp
+    singleapplication.h
+    singleapplication.cpp
     ${SOURCES}
 )
 set(SINGLETON_QML_FILES

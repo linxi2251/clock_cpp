@@ -1,86 +1,30 @@
 #include <QApplication>
 #include <QCoreApplication>
-#include <QLocalServer>
-#include <QLocalSocket>
 #include <QQmlApplicationEngine>
 #include <QQmlContext>
 #include <QMessageBox>
 #include <QUrl>
+#include <QDebug>
 #include "windowmanager.h"
-
-// 单实例应用管理器
-class SingleApplication {
-
-public:
-    explicit SingleApplication(const QString &appId);
-    ~SingleApplication();
-
-    bool isRunning();
-private:
-    QString m_appId;
-    QLocalServer *m_localServer{nullptr};
-};
-
-SingleApplication::SingleApplication(const QString &appId)
-    : m_appId(appId)
-{
-}
-
-SingleApplication::~SingleApplication()
-{
-    if (m_localServer) {
-        if (m_localServer->isListening()) {
-            m_localServer->close();
-        }
-        delete m_localServer;
-        m_localServer = nullptr;
-    }
-
-    QLocalServer::removeServer(m_appId);
-}
-
-bool SingleApplication::isRunning()
-{
-    QLocalSocket socket;
-    socket.connectToServer(m_appId);
-
-    if (socket.waitForConnected(500)) {
-        socket.disconnectFromServer();
-        return true;
-    }
-
-    if (m_localServer && m_localServer->isListening()) {
-        return false;
-    }
-
-    if (!m_localServer) {
-        m_localServer = new QLocalServer;
-    }
-
-    QLocalServer::removeServer(m_appId);
-
-    if (!m_localServer->listen(m_appId)) {
-        delete m_localServer;
-        m_localServer = nullptr;
-        QLocalServer::removeServer(m_appId);
-        return true;
-    }
-
-    return false;
-}
+#include "singleapplication.h"
 
 int main(int argc, char *argv[])
 {
     QApplication app(argc, argv);
     app.setStyle("Fusion");
+    
+    /************** begin: 保证只能运行一个程序 *****************/
+    // 创建单实例应用管理器
     const QString appId = QString::fromLatin1("clock_cpp_single_instance");
     SingleApplication singleApplication(appId);
+    
     if (singleApplication.isRunning()) {
-        QMessageBox::warning(nullptr,
-                             QObject::tr("应用正在运行"),
-                             QObject::tr("另一个程序实例已在运行。"));
+        // 已有实例在运行,激活已有窗口
+        qDebug() << "检测到已运行的实例,正在激活现有窗口...";
+        singleApplication.activateExistingInstance();
         return 0;
     }
+    /************** end: 保证只能运行一个程序 *****************/
 
     // 创建 WindowManager 实例
     WindowManager windowManager;
@@ -99,6 +43,10 @@ int main(int argc, char *argv[])
         },
         Qt::QueuedConnection);
     engine.loadFromModule(QString::fromLatin1("Clock"), QString::fromLatin1("Main"));
-
+    
+    // 连接激活信号到窗口管理器
+    QObject::connect(&singleApplication, &SingleApplication::instanceActivated,
+                     &windowManager, &WindowManager::activateWindow);
+    
     return app.exec();
 }

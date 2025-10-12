@@ -3,6 +3,10 @@
 #include <QWindow>
 #include <QGuiApplication>
 
+#ifdef Q_OS_WIN
+#include <windows.h>
+#endif
+
 #ifdef Q_OS_LINUX
 #include <X11/Xlib.h>
 #include <X11/Xatom.h>
@@ -162,3 +166,59 @@ void WindowManager::setX11StayOnTop(bool stayOnTop)
     qDebug() << "X11 窗口置顶状态已设置:" << stayOnTop;
 }
 #endif
+
+void WindowManager::activateWindow()
+{
+    if (!m_window)
+        return;
+
+    // 显示窗口(如果被隐藏)
+    if (!m_window->isVisible()) {
+        m_window->show();
+    }
+
+    // 如果窗口被最小化,恢复它
+    if (m_window->windowState() & Qt::WindowMinimized) {
+        m_window->setWindowState(Qt::WindowNoState);
+    }
+
+    // 提升窗口到前台
+    m_window->raise();
+    
+    // 请求激活窗口(获得焦点)
+    m_window->requestActivate();
+
+#ifdef Q_OS_WIN
+    // Windows 特定代码:强制激活窗口
+    HWND hwnd = reinterpret_cast<HWND>(m_window->winId());
+    
+    // 允许设置前台窗口
+    DWORD currentThreadId = GetCurrentThreadId();
+    DWORD foregroundThreadId = GetWindowThreadProcessId(GetForegroundWindow(), NULL);
+    
+    if (currentThreadId != foregroundThreadId) {
+        // 附加到前台线程的输入队列
+        AttachThreadInput(currentThreadId, foregroundThreadId, TRUE);
+    }
+    
+    // 恢复窗口(如果被最小化)
+    if (IsIconic(hwnd)) {
+        ShowWindow(hwnd, SW_RESTORE);
+    }
+    
+    // 设置为前台窗口
+    SetForegroundWindow(hwnd);
+    SetWindowPos(hwnd, HWND_TOP, 0, 0, 0, 0, 
+                 SWP_NOMOVE | SWP_NOSIZE | SWP_SHOWWINDOW);
+    SetFocus(hwnd);
+    
+    if (currentThreadId != foregroundThreadId) {
+        // 分离线程输入队列
+        AttachThreadInput(currentThreadId, foregroundThreadId, FALSE);
+    }
+    
+    qDebug() << "Windows 窗口已被激活并提到前台";
+#else
+    qDebug() << "窗口已被激活";
+#endif
+}
